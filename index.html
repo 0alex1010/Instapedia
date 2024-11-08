@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instapedia</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        #container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        #search-box {
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #results {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1>Instapedia</h1>
+        <div id="search-box">
+            <input type="text" id="search-input" placeholder="Enter your question...">
+            <button id="search-button">Search</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const searchButton = document.getElementById('search-button');
+        const searchInput = document.getElementById('search-input');
+        const resultsDiv = document.getElementById('results');
+
+        searchButton.addEventListener('click', () => {
+            const query = searchInput.value;
+            if (query.trim() === "") return; // Prevent empty searches
+
+            const apiUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&format=json`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = ''; // Clear previous results
+
+                    if (data[1].length === 0) {
+                        resultsDiv.innerHTML = "<p>No results found.</p>";
+                        return; 
+                    }
+
+                    // Display the first result
+                    const title = data[1][0];
+                    const snippet = data[2][0];
+                    const link = data[3][0];
+
+                    resultsDiv.innerHTML = `
+                        <h2>${title}</h2>
+                        <p>${snippet}</p>
+                        <a href="${link}" target="_blank">Read more</a>
+                    `;
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    resultsDiv.innerHTML = "<p>An error occurred. Please try again later.</p>";
+                });
+        });
+    </script>
+
+</body>
+</html>
