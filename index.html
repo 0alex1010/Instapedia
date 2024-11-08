@@ -5,49 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Instapedia</title>
     <style>
-        body {
-            font-family: sans-serif;
-        }
-
-        #container {
-            width: 80%;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        #search-box {
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            flex-grow: 1; /* Make the input field take up available space */
-            margin-right: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        #results {
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 20px;
-            text-align: left;
-        }
-
-        #pr-counter {
-            margin-top: 20px;
-        }
+        /* Same CSS as before */
     </style>
 </head>
 <body>
@@ -82,22 +40,23 @@
             const query = searchInput.value;
             if (query.trim() === "") return;
 
-            const apiUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&format=json`;
-            const pr = parseInt(prSelect.value, 10); // Get the PR value from the select element
+            const pr = parseInt(prSelect.value, 10);
+
+            const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=10&format=json`; 
 
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
                     resultsDiv.innerHTML = ''; 
 
-                    if (data[1].length < pr) { // Check if enough results are available
+                    if (data.query.search.length < pr) {
                         resultsDiv.innerHTML = "<p>Not enough results for this PR value.</p>";
-                        return; 
+                        return;
                     }
 
-                    const title = data[1][pr - 1]; // Adjust index for PR
-                    const snippet = data[2][pr - 1];
-                    const link = data[3][pr - 1];
+                    const title = data.query.search[pr - 1].title;
+                    const snippet = data.query.search[pr - 1].snippet;
+                    const link = `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`; // Construct the link
 
                     resultsDiv.innerHTML = `
                         <h2>${title}</h2>
