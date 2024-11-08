@@ -17,12 +17,16 @@
 
         #search-box {
             margin-top: 20px;
+            display: flex;
+            align-items: center;
         }
 
         input[type="text"] {
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ccc;
+            flex-grow: 1; /* Make the input field take up available space */
+            margin-right: 10px;
         }
 
         button {
@@ -40,6 +44,10 @@
             padding: 20px;
             text-align: left;
         }
+
+        #pr-counter {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -52,33 +60,44 @@
         </div>
 
         <div id="results"></div>
+
+        <div id="pr-counter">
+            <label for="pr-select">Perfect Result (PR): </label>
+            <select id="pr-select">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+
     </div>
 
     <script>
         const searchButton = document.getElementById('search-button');
         const searchInput = document.getElementById('search-input');
         const resultsDiv = document.getElementById('results');
+        const prSelect = document.getElementById('pr-select');
 
         searchButton.addEventListener('click', () => {
             const query = searchInput.value;
-            if (query.trim() === "") return; 
+            if (query.trim() === "") return;
 
             const apiUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&format=json`;
+            const pr = parseInt(prSelect.value, 10); // Get the PR value from the select element
 
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
                     resultsDiv.innerHTML = ''; 
 
-                    if (data[1].length === 0) {
-                        resultsDiv.innerHTML = "<p>No results found.</p>";
+                    if (data[1].length < pr) { // Check if enough results are available
+                        resultsDiv.innerHTML = "<p>Not enough results for this PR value.</p>";
                         return; 
                     }
 
-                    // Extract data correctly
-                    const title = data[1][0];
-                    const snippet = data[2][0];
-                    const link = data[3][0];
+                    const title = data[1][pr - 1]; // Adjust index for PR
+                    const snippet = data[2][pr - 1];
+                    const link = data[3][pr - 1];
 
                     resultsDiv.innerHTML = `
                         <h2>${title}</h2>
