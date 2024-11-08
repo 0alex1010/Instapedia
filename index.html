@@ -61,21 +61,21 @@
 
         searchButton.addEventListener('click', () => {
             const query = searchInput.value;
-            if (query.trim() === "") return; // Prevent empty searches
+            if (query.trim() === "") return; 
 
             const apiUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&format=json`;
 
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
-                    resultsDiv.innerHTML = ''; // Clear previous results
+                    resultsDiv.innerHTML = ''; 
 
                     if (data[1].length === 0) {
                         resultsDiv.innerHTML = "<p>No results found.</p>";
                         return; 
                     }
 
-                    // Display the first result
+                    // Extract data correctly
                     const title = data[1][0];
                     const snippet = data[2][0];
                     const link = data[3][0];
